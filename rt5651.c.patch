@@ -1,0 +1,95 @@
+--- sound/soc/codecs/rt5651.c	2017-09-03 22:56:17.000000000 +0200
++++ sound/soc/codecs/rt5651.c	2018-01-13 20:31:53.939259380 +0100
+
+@@ -9,6 +9,8 @@
+  * published by the Free Software Foundation.
+  */
+ 
++#define DEBUG
++
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+@@ -27,6 +29,9 @@
+ #include <sound/initval.h>
+ #include <sound/tlv.h>
+ 
++#include <linux/dmi.h>
++#include <linux/gpio/consumer.h>
++
+ #include "rl6231.h"
+ #include "rt5651.h"
+ 
+@@ -1696,6 +1701,32 @@
+ 	.num_ranges = ARRAY_SIZE(rt5651_ranges),
+ };
+ 
++// Chuwi Hi10 Pro (and probably Plus) devices retain a hardware speaker mute
++// switch that was actually an output mux in earlier board revisions utilizing
++// a different codec. Just unconditionally enable it; it's no longer used
++// for muxing. The second GPIO (hpint) may or may not still be used for that
++// purpose (TODO)
++static const struct dmi_system_id chuwi_hi10_pro[] = {
++#if defined(CONFIG_DMI) && defined(CONFIG_X86)
++	{
++		.ident = "Chuwi Hi10 Pro/Plus",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR")
++		}
++	},
++#endif
++	{}
++};
++
++static const struct acpi_gpio_params hi10_rt5651_gpio_spken = { 0, 0, false };
++static const struct acpi_gpio_params hi10_rt5651_gpio_hpint = { 1, 0, false };
++static const struct acpi_gpio_mapping hi10_rt5651_gpios_map[] = {
++	{ "spken-gpios", &hi10_rt5651_gpio_spken, 1 },
++	{ "hpint-gpios", &hi10_rt5651_gpio_hpint, 1 },
++	{ },
++};
++
+ #if defined(CONFIG_OF)
+ static const struct of_device_id rt5651_of_match[] = {
+ 	{ .compatible = "realtek,rt5651", },
+@@ -1735,6 +1766,8 @@
+ 	struct rt5651_priv *rt5651;
+ 	int ret;
+ 
++	struct gpio_desc *gpiod_spken;
++
+ 	rt5651 = devm_kzalloc(&i2c->dev, sizeof(*rt5651),
+ 				GFP_KERNEL);
+ 	if (NULL == rt5651)
+@@ -1779,6 +1812,30 @@
+ 
+ 	rt5651->hp_mute = 1;
+ 
++	if (dmi_check_system(chuwi_hi10_pro) && ACPI_HANDLE(&i2c->dev)) {
++		dev_dbg(&i2c->dev, "Applying Hi10 Pro gpios quirk\n");
++		ret = devm_acpi_dev_add_driver_gpios(&i2c->dev, hi10_rt5651_gpios_map);
++		if (ret != 0)
++			return ret; // FIXME: cleanup?
++	}
++
++	gpiod_spken = devm_gpiod_get_optional(&i2c->dev, "spken", GPIOD_ASIS);
++	if (IS_ERR(gpiod_spken)) {
++		ret = PTR_ERR(gpiod_spken);
++		dev_err(&i2c->dev, "Failed to get SPK-EN GPIO: %d\n", ret);
++		return ret; // FIXME: cleanup?
++	}
++
++	if (gpiod_spken) {
++		if (gpiod_export(gpiod_spken, false) < 0) {
++			dev_err(&i2c->dev, "Failed to export SPK-EN GPIO!\n");
++		} else {
++			dev_dbg(&i2c->dev, "Exported SPK-EN GPIO to sysfs!\n");
++		}
++
++		gpiod_set_value(gpiod_spken, 1); //always enable
++	}
++
+ 	ret = snd_soc_register_codec(&i2c->dev, &soc_codec_dev_rt5651,
+ 				rt5651_dai, ARRAY_SIZE(rt5651_dai));
+ 
