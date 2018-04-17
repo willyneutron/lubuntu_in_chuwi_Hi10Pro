@@ -1,4 +1,4 @@
-# Installing Lubuntu in Chuwi Hi10 Pro
+# Installing Lubuntu in Chuwi Hi10 Pro [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 In this guide, I will try to explain all processes I followed to have a working Lubuntu
 17.10 in a Chuwi Hi10 Pro tablet. I hope this will be easily adapted to other Linux flavours.
@@ -86,7 +86,7 @@ the Chuwi won't boot if Lubuntu is not installed in EFI mode. In VirtualBox, you
 in Configuration > System > Enable EFI.
 
 After that, I loaded Lubuntu 17.10 ISO ([Lubuntu official download site](https://lubuntu.net/lubuntu-1710-artful-aardvark-released/))
-into virtual CD-ROM drive and started up my VM. I continued with the installation with no problems.
+into virtual CD-ROM drive and started up my VM. I continued the installation with no problems.
 
 This USB stick is ready to boot in pretty much every computer, but not in this Baytrail tablets, because
 they have a 32 bit UEFI. To address that, we need to get a bootia32.efi and place it inside EFI partition
@@ -135,6 +135,8 @@ This is not due to video issues but sound issues, we will fix that later.
 improvement in speed and screen fluency, but I have not measured it in any way, it is just subjective. If you are running
 your system from a USB stick, installing these drivers could cause graphic crashes if you try to use the USB stick in
 other systems.**
+
+**NOTE 2: It seems that Intel is discontinuing this method of driver update as you can read [here]("https://01.org/linuxgraphics/downloads/update-tool")**
 
 This information is based on a guide published in [slimbook.es](https://slimbook.es/tutoriales/linux/132-que-es-y-como-instalar-intel-graphics-update-tool-for-linux-en-ubuntu-15-04-y-15-10)
 
@@ -304,7 +306,7 @@ Thanks to [jamontes](https://github.com/jamontes) for his help in these issues.
 
 Bluetooth
 ---------
-Bluetooth is working after installing drivers:
+Bluetooth is working after installing drivers (big thanks to Larry Finger for this!):
 
 ```bash
 cd /tmp
@@ -350,7 +352,7 @@ sudo cat /sys/bus/iio/devices/iio\:device1/in_illuminance0_input
 Accelerometer and screen rotation
 ---------------------------------
 
-I have prepared a daemon for this task: [bma250 screen autorrotator](https://github.com/willyneutron/bma250-screen-autorotator)
+I have prepared a daemon for this task: [bma250 screen autorotator](https://github.com/willyneutron/bma250-screen-autorotator)
 
 
 Customizing and compiling Linux Kernel
@@ -418,7 +420,7 @@ When you agree to edit the configuration for a certain kernel flavour, you will 
 
 ![First kernel configuration screen][kernel1]
 
-In this screen, press ```/`` key to search for all configurations that need to be changed (specified in blacklight section of this guide):
+In this screen, press ```/``` key to search for all configurations that need to be changed (specified in blacklight section of this guide):
 
 ![Kernel search screen][kernel2]
 
