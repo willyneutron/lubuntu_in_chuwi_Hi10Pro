@@ -136,7 +136,7 @@ improvement in speed and screen fluency, but I have not measured it in any way, 
 your system from a USB stick, installing these drivers could cause graphic crashes if you try to use the USB stick in
 other systems.**
 
-**NOTE 2: It seems that Intel is discontinuing this method of driver update as you can read [here]("https://01.org/linuxgraphics/downloads/update-tool")**
+**NOTE 2: It seems that Intel is discontinuing this method of driver update as you can read [here](https://01.org/linuxgraphics/downloads/update-tool)**
 
 This information is based on a guide published in [slimbook.es](https://slimbook.es/tutoriales/linux/132-que-es-y-como-instalar-intel-graphics-update-tool-for-linux-en-ubuntu-15-04-y-15-10)
 
