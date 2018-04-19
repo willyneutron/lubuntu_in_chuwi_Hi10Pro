@@ -19,7 +19,7 @@ This is the current state of my system:
 | Headphone jack 		| Working 		| Configuration needed.
 | Battery control		| Working 		| Out of the box.
 | Backlight			| Working 		| Configuration needed.
-| Touchscreen			| Partially working 	| Imprecise. Does not rotate when screen does.
+| Touchscreen			| Partially working 	| Imprecise.
 | Power button			| Working 		| Out of the box.
 | Volumen buttons		| Not working 		| They are recognized by the hardware, but there are issues with sound configuration.
 | Suspend			| Not working		| Not waking up from suspend.
@@ -254,9 +254,7 @@ brightness up and down fn keyboard key combinations will also work fine.
 Touchscreen
 -----------
 
-**NOTE: I am currently working on this. The screen is now detected, but it is terribly imprecise and needs to be calibrated.
-Also it does not rotate when the screen does, so it needs manual rotation using xinput as explained in
-[this gist](https://gist.github.com/mildmojo/48e9025070a2ba40795c#file-rotate_desktop-sh-L42).**
+**NOTE: I am currently working on this. The screen is now detected, but it is imprecise and needs to be calibrated.**
 
 In order to get the screen working, screen firmware need to be installed. In this case, only one file will be needed:
 
@@ -354,6 +352,16 @@ Accelerometer and screen rotation
 
 I have prepared a daemon for this task: [bma250 screen autorotator](https://github.com/willyneutron/bma250-screen-autorotator)
 
+In order to rotate the touchscreen at the same time than the image, you will need to compile this program defining XDEVICE macro using
+the ID of your touchscreen provided by ```xinput list```. In my case I needed to compile and install it like this:
+
+```bash
+autoreconf -vfi
+./configure CFLAGS="-DXDEVICE=11"
+make
+sudo make install
+```   
+Do not forget also to configure LXDE to run the program at startup.
 
 Customizing and compiling Linux Kernel
 --------------------------------------
